@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Book4U</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f1117;
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            width: 240px;
+            background: #161b22;
+            border-right: 1px solid #30363d;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: sticky;
+            top: 0
+        }
+
+        .sb-logo {
+            padding: 24px 20px;
+            border-bottom: 1px solid #30363d
+        }
+
+        .sb-logo h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff
+        }
+
+        .sb-logo .tag {
+            font-size: .7rem;
+            background: #388e3c;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 20px;
+            margin-left: 6px
+        }
+
+        .sb-nav {
+            flex: 1;
+            padding: 16px 0
+        }
+
+        .sb-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 20px;
+            cursor: pointer;
+            border-radius: 0;
+            transition: all .2s;
+            font-size: .9rem;
+            color: #8b949e;
+            border-left: 3px solid transparent
+        }
+
+        .sb-item:hover,
+        .sb-item.active {
+            background: rgba(76, 175, 80, .12);
+            color: #4CAF50;
+            border-left-color: #4CAF50
+        }
+
+        .sb-item span {
+            font-size: 1.1rem
+        }
+
+        .sb-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #30363d;
+            font-size: .78rem;
+            color: #555
+        }
+
+        .sb-footer a {
+            color: #4CAF50;
+            text-decoration: none
+        }
+
+        /* ── Main content ── */
+        .main {
+            flex: 1;
+            overflow-y: auto
+        }
+
+        /* ── Top bar ── */
+        .topbar {
+            background: #161b22;
+            border-bottom: 1px solid #30363d;
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10
+        }
+
+        .topbar h1 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff
+        }
+
+        .admin-badge {
+            background: linear-gradient(135deg, #4CAF50, #2e7d32);
+            color: #fff;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: .82rem;
+            font-weight: 600
+        }
+
+        #logoutBtn {
+            background: transparent;
+            border: 1px solid #555;
+            color: #ccc;
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: .82rem;
+            margin-left: 12px;
+            transition: all .2s
+        }
+
+        #logoutBtn:hover {
+            border-color: #f44336;
+            color: #f44336
+        }
+
+        /* ── Panels ── */
+        .panel {
+            display: none;
+            padding: 28px
+        }
+
+        .panel.active {
+            display: block
+        }
+
+        /* ── Login panel ── */
+        .login-wrap {
+            min-height: calc(100vh - 55px);
+            display: flex;
+            align-items: center;
+            justify-content: center
+        }
+
+        .login-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 16px;
+            padding: 44px;
+            width: 380px;
+            text-align: center
+        }
+
+        .login-card .icon {
+            font-size: 3rem;
+            margin-bottom: 16px
+        }
+
+        .login-card h2 {
+            font-size: 1.5rem;
+            color: #fff;
+            margin-bottom: 6px
+        }
+
+        .login-card p {
+            color: #8b949e;
+            font-size: .88rem;
+            margin-bottom: 28px
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+            text-align: left
+        }
+
+        .form-group label {
+            display: block;
+            font-size: .82rem;
+            color: #8b949e;
+            margin-bottom: 6px;
+            font-weight: 500
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: #e0e0e0;
+            font-size: .9rem;
+            font-family: inherit;
+            transition: border .2s
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, .12)
+        }
+
+        .form-group textarea {
+            min-height: 90px;
+            resize: vertical
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: linear-gradient(135deg, #4CAF50, #2e7d32);
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: .95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s;
+            margin-top: 4px
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, .35)
+        }
+
+        .btn-primary:active {
+            transform: translateY(0)
+        }
+
+        .err-msg {
+            background: rgba(244, 67, 54, .12);
+            border: 1px solid rgba(244, 67, 54, .3);
+            color: #ef9a9a;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: .85rem;
+            margin-top: 12px;
+            display: none
+        }
+
+        .ok-msg {
+            background: rgba(76, 175, 80, .12);
+            border: 1px solid rgba(76, 175, 80, .3);
+            color: #a5d6a7;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: .85rem;
+            margin-top: 12px;
+            display: none
+        }
+
+        /* ── Dashboard stats ── */
+        .stat-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px
+        }
+
+        .stat-box {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 22px 20px;
+            text-align: center
+        }
+
+        .stat-box .sv {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #4CAF50;
+            display: block
+        }
+
+        .stat-box .sl {
+            font-size: .78rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: .04em
+        }
+
+        /* ── Section header ── */
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px
+        }
+
+        .sec-hdr h2 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #fff
+        }
+
+        .badge-cnt {
+            background: #4CAF50;
+            color: #fff;
+            border-radius: 20px;
+            padding: 2px 10px;
+            font-size: .75rem;
+            margin-left: 8px
+        }
+
+        /* ── Add Book form ── */
+        .add-book-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 14px;
+            padding: 28px;
+            margin-bottom: 28px
+        }
+
+        .add-book-card h3 {
+            font-size: 1rem;
+            color: #fff;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #30363d
+        }
+
+        .form-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px
+        }
+
+        @media(max-width:600px) {
+            .form-2col {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .form-full {
+            grid-column: 1/-1
+        }
+
+        .preview-img {
+            width: 100%;
+            height: 150px;
+            background: #0d1117;
+            border: 2px dashed #30363d;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #555;
+            font-size: .85rem;
+            overflow: hidden;
+            margin-top: 8px
+        }
+
+        .preview-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 6px
+        }
+
+        /* ── Books table ── */
+        .books-table {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        .books-table th {
+            background: #0d1117;
+            color: #8b949e;
+            font-size: .78rem;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            padding: 10px 14px;
+            text-align: left;
+            font-weight: 600
+        }
+
+        .books-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #21262d;
+            font-size: .88rem;
+            vertical-align: middle
+        }
+
+        .books-table tr:hover td {
+            background: rgba(255, 255, 255, .02)
+        }
+
+        .table-img {
+            width: 44px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #30363d
+        }
+
+        .book-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: .72rem;
+            font-weight: 600
+        }
+
+        .book-badge.fiction {
+            background: rgba(76, 175, 80, .18);
+            color: #81c784
+        }
+
+        .book-badge.educational {
+            background: rgba(33, 150, 243, .18);
+            color: #64b5f6
+        }
+
+        .book-badge.non-fiction {
+            background: rgba(255, 152, 0, .18);
+            color: #ffb74d
+        }
+
+        .book-badge.anime {
+            background: rgba(156, 39, 176, .18);
+            color: #ba68c8
+        }
+
+        .del-btn {
+            background: rgba(244, 67, 54, .12);
+            border: 1px solid rgba(244, 67, 54, .25);
+            color: #ef9a9a;
+            padding: 5px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: .78rem;
+            transition: all .2s
+        }
+
+        .del-btn:hover {
+            background: rgba(244, 67, 54, .25)
+        }
+
+        .empty-row td {
+            text-align: center;
+            color: #555;
+            padding: 40px !important
+        }
+
+        .table-wrap {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 14px;
+            overflow: hidden
+        }
+
+        /* ── Spinner ── */
+        .spin {
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, .3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+            display: inline-block;
+            margin-right: 6px;
+            vertical-align: middle
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar" id="sidebar" style="display:none">
+        <div class="sb-logo">
+            <h2>📚 Book4U <span class="tag">ADMIN</span></h2>
+        </div>
+        <nav class="sb-nav">
+            <div class="sb-item active" onclick="showPanel('dashboard')"><span>📊</span> Dashboard</div>
+            <div class="sb-item" onclick="showPanel('addBook')"><span>➕</span> Add Book</div>
+            <div class="sb-item" onclick="showPanel('manageBooks')"><span>📚</span> Manage Books</div>
+        </nav>
+        <div class="sb-footer">
+            <a href="index (1).html">← Back to Website</a>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="topbar" id="topbar" style="display:none">
+            <h1>Admin Panel</h1>
+            <div>
+                <span class="admin-badge">🔐 Admin</span>
+                <button id="logoutBtn" onclick="adminLogout()">Logout</button>
+            </div>
+        </div>
+
+        <!-- LOGIN PANEL -->
+        <div id="loginPanel" class="panel active" style="display:block;padding:0">
+            <div class="login-wrap">
+                <div class="login-card">
+                    <div class="icon">🔐</div>
+                    <h2>Admin Login</h2>
+                    <p>Enter your admin credentials to access the panel</p>
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="adminUser" placeholder="admin" autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="adminPass" placeholder="••••••••"
+                            onkeydown="if(event.key==='Enter')adminLogin()">
+                    </div>
+                    <button class="btn-primary" id="loginBtn" onclick="adminLogin()">Sign In</button>
+                    <div class="err-msg" id="loginErr"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DASHBOARD PANEL -->
+        <div id="dashboardPanel" class="panel" style="padding:28px">
+            <div class="stat-row" id="dashStats">
+                <div class="stat-box"><span class="sv" id="dBooks">—</span><span class="sl">Total Books</span></div>
+                <div class="stat-box"><span class="sv" id="dUsers">—</span><span class="sl">Members</span></div>
+                <div class="stat-box"><span class="sv" id="dCarts">—</span><span class="sl">Active Carts</span></div>
+                <div class="stat-box"><span class="sv" id="dCategories">—</span><span class="sl">Categories</span></div>
+            </div>
+            <div class="table-wrap">
+                <table class="books-table" id="dashTable">
+                    <thead>
+                        <tr>
+                            <th>Cover</th>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ADD BOOK PANEL -->
+        <div id="addBookPanel" class="panel" style="padding:28px">
+            <div class="add-book-card">
+                <h3>➕ Add New Book</h3>
+                <div class="form-2col">
+                    <div class="form-group">
+                        <label>Book Title *</label>
+                        <input type="text" id="bTitle" placeholder="e.g. The Great Adventure">
+                    </div>
+                    <div class="form-group">
+                        <label>Author</label>
+                        <input type="text" id="bAuthor" placeholder="e.g. John Smith">
+                    </div>
+                    <div class="form-group">
+                        <label>Price (USD) *</label>
+                        <input type="number" id="bPrice" placeholder="9.99" min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Category *</label>
+                        <select id="bCategory">
+                            <option value="fiction">Fiction</option>
+                            <option value="educational">Educational</option>
+                            <option value="non-fiction">Non-Fiction</option>
+                            <option value="anime">Anime</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Original Price (for strikethrough)</label>
+                        <input type="number" id="bOrigPrice" placeholder="14.99" min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Pages</label>
+                        <input type="number" id="bPages" placeholder="300">
+                    </div>
+                    <div class="form-group">
+                        <label>Badge (optional)</label>
+                        <select id="bBadge">
+                            <option value="">None</option>
+                            <option value="NEW">NEW</option>
+                            <option value="BESTSELLER">BESTSELLER</option>
+                            <option value="SALE">SALE</option>
+                            <option value="HOT">HOT</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Image URL *</label>
+                        <input type="url" id="bImageUrl" placeholder="https://... or assets/book1.jpg"
+                            oninput="previewImg()">
+                    </div>
+                    <div class="form-group form-full">
+                        <label>Image Preview</label>
+                        <div class="preview-img" id="imgPreview">Enter an image URL above to preview</div>
+                    </div>
+                    <div class="form-group form-full">
+                        <label>Description *</label>
+                        <textarea id="bDesc" placeholder="Write a short description of this book..."></textarea>
+                    </div>
+                    <div class="form-full">
+                        <button class="btn-primary" id="addBookBtn" onclick="submitBook()">➕ Add Book to Shop</button>
+                        <div class="err-msg" id="addErr"></div>
+                        <div class="ok-msg" id="addOk"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MANAGE BOOKS PANEL -->
+        <div id="manageBooksPanel" class="panel" style="padding:28px">
+            <div class="sec-hdr">
+                <h2>All Books <span class="badge-cnt" id="manageCount">0</span></h2>
+                <button class="btn-primary" style="width:auto;padding:8px 20px" onclick="showPanel('addBook')">➕ Add
+                    New</button>
+            </div>
+            <div class="table-wrap">
+                <table class="books-table">
+                    <thead>
+                        <tr>
+                            <th>Cover</th>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="manageBooksBody"></tbody>
+                </table>
+            </div>
+            <div class="err-msg" id="manageErr" style="margin-top:14px"></div>
+        </div>
+
+    </div>
+
+    <script>
+        // ── Auth ──
+        let isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
+
+        function toggleUI(show) {
+            document.getElementById('sidebar').style.display = show ? 'flex' : 'none';
+            document.getElementById('topbar').style.display = show ? 'flex' : 'none';
+            document.getElementById('loginPanel').style.display = show ? 'none' : 'block';
+            if (show) showPanel('dashboard');
+        }
+        if (isLoggedIn) toggleUI(true);
+
+        async function adminLogin() {
+            const u = document.getElementById('adminUser').value.trim();
+            const p = document.getElementById('adminPass').value.trim();
+            const err = document.getElementById('loginErr');
+            const btn = document.getElementById('loginBtn');
+            if (!u || !p) {
+                err.textContent = '⚠️ Please enter username and password.';
+                err.style.display = 'block'; return;
+            }
+            btn.textContent = 'Signing in...';
+            btn.disabled = true;
+            try {
+                const res = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: u, password: p })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    sessionStorage.setItem('adminLoggedIn', 'true');
+                    sessionStorage.setItem('adminKey', data.adminKey);
+                    isLoggedIn = true;
+                    toggleUI(true);
+                } else {
+                    err.textContent = '❌ ' + (data.message || 'Invalid credentials. Please try again.');
+                    err.style.display = 'block';
+                    setTimeout(() => { err.style.display = 'none'; }, 4000);
+                }
+            } catch (e) {
+                err.textContent = '❌ Cannot reach the server. Is it running?';
+                err.style.display = 'block';
+            }
+            btn.textContent = 'Sign In';
+            btn.disabled = false;
+        }
+        function adminLogout() {
+            sessionStorage.removeItem('adminLoggedIn');
+            sessionStorage.removeItem('adminKey');
+            isLoggedIn = false;
+            toggleUI(false);
+            document.getElementById('adminUser').value = '';
+            document.getElementById('adminPass').value = '';
+        }
+
+        // ── Panel navigation ──
+        const panels = ['dashboard', 'addBook', 'manageBooks'];
+        function showPanel(name) {
+            panels.forEach(p => {
+                document.getElementById(p + 'Panel').style.display = p === name ? 'block' : 'none';
+                document.querySelectorAll('.sb-item').forEach((el, i) => {
+                    el.classList.toggle('active', ['dashboard', 'addBook', 'manageBooks'][i] === name);
+                });
+            });
+            if (name === 'dashboard') loadDashboard();
+            if (name === 'manageBooks') loadManageBooks();
+        }
+
+        // ── Image preview ──
+        function previewImg() {
+            const url = document.getElementById('bImageUrl').value.trim();
+            const preview = document.getElementById('imgPreview');
+            if (url) {
+                preview.innerHTML = `<img src="${url}" alt="preview" onerror="this.parentElement.innerHTML='❌ Image not found'">`;
+            } else {
+                preview.innerHTML = 'Enter an image URL above to preview';
+            }
+        }
+
+        // ── Load dashboard ──
+        async function loadDashboard() {
+            try {
+                const res = await fetch('/api/stats');
+                const d = await res.json();
+                document.getElementById('dUsers').textContent = d.userCount ?? 0;
+                document.getElementById('dBooks').textContent = d.bookCount ?? 0;
+                document.getElementById('dCarts').textContent = d.cartCount ?? 0;
+                document.getElementById('dCategories').textContent = 4;
+            } catch (e) { console.error(e); }
+
+            try {
+                const bres = await fetch('/api/books');
+                const bd = await bres.json();
+                const books = bd.books || [];
+                const tbody = document.getElementById('dashTableBody');
+                tbody.innerHTML = books.length ? books.map(bookRow).join('') :
+                    '<tr class="empty-row"><td colspan="5">No books yet. <button onclick="showPanel(\'addBook\')" style="color:#4CAF50;background:none;border:none;cursor:pointer">Add one →</button></td></tr>';
+            } catch (e) { console.error(e); }
+        }
+
+        // ── Load manage books ──
+        async function loadManageBooks() {
+            try {
+                const res = await fetch('/api/books');
+                const bd = await res.json();
+                const books = bd.books || [];
+                document.getElementById('manageCount').textContent = books.length;
+                const tbody = document.getElementById('manageBooksBody');
+                tbody.innerHTML = books.length ? books.map(bookRowFull).join('') :
+                    '<tr class="empty-row"><td colspan="6">No books yet.</td></tr>';
+            } catch (e) {
+                document.getElementById('manageErr').textContent = '❌ Could not load books.';
+                document.getElementById('manageErr').style.display = 'block';
+            }
+        }
+
+        function bookRow(b) {
+            return `<tr>
+        <td><img class="table-img" src="${esc(b.imageUrl || b.image || 'assets/book1.jpg')}" onerror="this.src='assets/book1.jpg'"></td>
+        <td style="font-weight:600;color:#e0e0e0">${esc(b.title)}</td>
+        <td><span class="book-badge ${esc(b.category)}">${esc(b.category)}</span></td>
+        <td style="color:#4CAF50;font-weight:600">$${parseFloat(b.price).toFixed(2)}</td>
+        <td><button class="del-btn" onclick="deleteBook('${b._id || b.bookId}')">🗑 Delete</button></td>
+    </tr>`;
+        }
+        function bookRowFull(b) {
+            return `<tr>
+        <td><img class="table-img" src="${esc(b.imageUrl || b.image || 'assets/book1.jpg')}" onerror="this.src='assets/book1.jpg'"></td>
+        <td style="font-weight:600;color:#e0e0e0">${esc(b.title)}</td>
+        <td style="color:#8b949e">${esc(b.author || '—')}</td>
+        <td><span class="book-badge ${esc(b.category)}">${esc(b.category)}</span></td>
+        <td style="color:#4CAF50;font-weight:600">$${parseFloat(b.price).toFixed(2)}</td>
+        <td><button class="del-btn" onclick="deleteBook('${b._id || b.bookId}')">🗑 Delete</button></td>
+    </tr>`;
+        }
+
+        // ── Submit new book ──
+        async function submitBook() {
+            const err = document.getElementById('addErr');
+            const ok = document.getElementById('addOk');
+            const btn = document.getElementById('addBookBtn');
+            err.style.display = 'none'; ok.style.display = 'none';
+
+            const title = document.getElementById('bTitle').value.trim();
+            const price = parseFloat(document.getElementById('bPrice').value);
+            const category = document.getElementById('bCategory').value;
+            const imageUrl = document.getElementById('bImageUrl').value.trim();
+            const desc = document.getElementById('bDesc').value.trim();
+
+            if (!title || isNaN(price) || !imageUrl || !desc) {
+                err.textContent = '⚠️ Please fill in all required fields (*).';
+                err.style.display = 'block'; return;
+            }
+
+            const payload = {
+                title,
+                author: document.getElementById('bAuthor').value.trim() || 'Unknown',
+                price,
+                origPrice: parseFloat(document.getElementById('bOrigPrice').value) || null,
+                category,
+                pages: parseInt(document.getElementById('bPages').value) || null,
+                badge: document.getElementById('bBadge').value || null,
+                imageUrl,
+                image: imageUrl,
+                description: desc
+            };
+
+            btn.innerHTML = '<span class="spin"></span> Adding...';
+            btn.disabled = true;
+
+            try {
+                const adminKey = sessionStorage.getItem('adminKey') || 'book4u@admin2024';
+                const res = await fetch('/api/admin/books', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    ok.textContent = `✅ "${title}" added to the shop!`;
+                    ok.style.display = 'block';
+                    // Reset form
+                    ['bTitle', 'bAuthor', 'bPrice', 'bOrigPrice', 'bPages', 'bImageUrl', 'bDesc']
+                        .forEach(id => document.getElementById(id).value = '');
+                    document.getElementById('bBadge').value = '';
+                    document.getElementById('imgPreview').innerHTML = 'Enter an image URL above to preview';
+                    setTimeout(() => { ok.style.display = 'none'; }, 4000);
+                } else {
+                    err.textContent = `❌ ${data.message}`; err.style.display = 'block';
+                }
+            } catch (e) {
+                err.textContent = '❌ Server error. Is the server running?'; err.style.display = 'block';
+            }
+            btn.innerHTML = '➕ Add Book to Shop'; btn.disabled = false;
+        }
+
+        // ── Delete book ──
+        async function deleteBook(id) {
+            if (!confirm('Delete this book from the shop?')) return;
+            try {
+                const adminKey = sessionStorage.getItem('adminKey') || 'book4u@admin2024';
+                const res = await fetch(`/api/admin/books/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'x-admin-key': adminKey }
+                });
+                const data = await res.json();
+                if (data.success) { loadManageBooks(); loadDashboard(); }
+                else alert('Error: ' + data.message);
+            } catch (e) { alert('Server error.'); }
+        }
+
+        function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+    </script>
+</body>
+
+</html>
